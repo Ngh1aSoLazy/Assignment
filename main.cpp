@@ -103,7 +103,7 @@ int main()
     char data;
     int n = 21; // Trên thực tế có thể là n bất kỳ 
                // nhưng vì đoạn code dưới đây chỉ 
-               // để test func nên cho trc n = 4
+               // để test func nên cho trc n = 21
     for(int i = 0; i < n; i++)
     {
         cin >> data;
