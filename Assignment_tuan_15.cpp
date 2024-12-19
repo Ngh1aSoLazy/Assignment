@@ -42,7 +42,7 @@ int IS_EMPTY(NODE* root)
 // Hàm tạo 1 node
 NODE* MAKE_NODE(int c, int p, int s, int subs)
 {
-    NODE* ptr = new NODE(c, p, s, subs); // Gán địa chỉ của node mới cho pointer p
+    NODE* ptr = new NODE(c, p, s, subs); // Gán địa chỉ của node mới cho pointer ptr
     return ptr;
 }
 
@@ -54,7 +54,7 @@ NODE* INSERT(NODE* root, int c, int p, int s, int subs)
         root = MAKE_NODE(c, p, s, subs);
         return root;
     }
-    else if(c == root->chapter && p == root->page && s == root->section && subs == root->subsection)
+    else if(c <= root->chapter)
     {
         if(root->left == NULL) root->left = MAKE_NODE(c, p, s, subs);
         else INSERT(root->left, c, p, s, subs);
@@ -98,7 +98,7 @@ int MAX_LEN(NODE* root)
 }
 
 // Hàm tìm kiếm
-void FIND(NODE* root, int chapter, int s, int subs)
+void FIND(NODE* root, int chapter)
 {
     // Nếu cây rỗng in ra "EMPTY" và dừng tìm kiếm
     if(IS_EMPTY(root)) 
@@ -106,9 +106,8 @@ void FIND(NODE* root, int chapter, int s, int subs)
         cout << "EMPTY !!!" << endl;
         return;
     }
-    if(chapter == root->chapter && s == root->section && subs == root->subsection) cout << "Found!" << endl;
-    if(chapter == root->chapter) FIND(root->left, chapter, s, subs);
-    if(chapter == root->chapter) FIND(root->right, chapter, s, subs);
+    if(chapter == root->chapter) cout << "Found!" << endl;
+    else FIND(root->right, chapter);
 }
 
 // Hàm thay đổi thứ tự chap 
@@ -144,8 +143,50 @@ void DEL(NODE* root, int c)
     DEL1(root, c);
 }
 
+// Duyệt cây theo kiểu tiền tố (gốc - trái - phải)
+void PREFIX(NODE* root)
+{
+    if(IS_EMPTY(root)) return;
+    cout << "Chapter: " << root->chapter << endl;
+    cout << "Page: " << root->page << " Section: " << root->section << " Subsection: " << root->subsection;
+    PREFIX(root->left);
+    PREFIX(root->right); 
+}
+
 int main()
 {
+    NODE* root = NULL;
+
+    int chapter;
+    int page;
+    int section;
+    int subsection;
+
+    for(int i = 0; i < 2; i++)
+    {
+        cout << " Chapter: ";
+        cin >> chapter;
+        cout << " Page: ";
+        cin >> page;
+        cout << " Section: ";
+        cin >> section;
+        cout << " subsection: ";
+        cin >> subsection;
+
+        INSERT(root, chapter, page, section, subsection);
+    }
+
+    if(root == NULL) cout << "0";
+    // cout << root->chapter;
+    // if(root->right == NULL) cout << "1";
+
+    PREFIX(root);
+
+    // NUM_OF_CHAP(root);
+    // cout << MAX_LEN(root);
+    // FIND(root, 3);
+    // DEL(root, 3);
+
 
     return 0;
 }
