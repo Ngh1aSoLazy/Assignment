@@ -47,26 +47,16 @@ NODE* MAKE_NODE(int c, int p, int s, int subs)
 }
 
 // Hàm insert
-NODE* INSERT(NODE* root, int c, int p, int s, int subs)
+NODE* INSERT(NODE* root, int c, int p, int s, int subs) 
 {
-    if(IS_EMPTY(root)) 
-    {
-        root = MAKE_NODE(c, p, s, subs);
-        return root;
-    }
-    else if(c <= root->chapter)
-    {
-        if(root->left == NULL) root->left = MAKE_NODE(c, p, s, subs);
-        else INSERT(root->left, c, p, s, subs);
-    }
-    else if(c > root->chapter)
-    {
-        if(root->right == NULL) root->right = MAKE_NODE(c, p, s, subs);
-        else INSERT(root->right, c, p, s, subs);
-    }
-    
+    if (root == NULL) return MAKE_NODE(c, p, s, subs);
+
+    if (c < root->chapter) root->left = INSERT(root->left, c, p, s, subs);
+    else if (c > root->chapter) root->right = INSERT(root->right, c, p, s, subs);
+
     return root;
 }
+
 
 // Hàm xác định số lượng chapter
 void NUM_OF_CHAP(NODE* root)
@@ -81,20 +71,20 @@ void NUM_OF_CHAP(NODE* root)
 }
 
 // Hàm tìm chapter dài nhất dựa trên số trang của nó
-int MAX_LEN(NODE* root)
+int MAX_LEN(NODE* root, int &longest_chap)
 {
-    if(IS_EMPTY(root)) cout << "Empty!";
-    int max = 0;
-    int longest_chapter = 0;
-    if(root->section > max) 
-    {
-        max = root->section;
-        longest_chapter = root->chapter;
-    }
-    MAX_LEN(root->left);
-    MAX_LEN(root->right);
+    if(IS_EMPTY(root)) return 0;
 
-    return longest_chapter;
+    int max = 0;
+    if(root->page > max) 
+    {
+        max = root->page;
+        longest_chap = root->chapter;
+    }
+    MAX_LEN(root->left, longest_chap);
+    MAX_LEN(root->right, longest_chap);
+
+    return longest_chap;
 }
 
 // Hàm tìm kiếm
@@ -111,25 +101,35 @@ void FIND(NODE* root, int chapter)
 }
 
 // Hàm thay đổi thứ tự chap 
-void CHANGE(NODE* root)
+void CHANGE(NODE* root, int del_chapter) 
 {
-    if(IS_EMPTY(root->right)) root->right->chapter++;
-    CHANGE(root->right);
+    if (root == NULL) return; // Điều kiện dừng: cây rỗng
 
+    // Nếu chương hiện tại lớn hơn chương bị xóa, giảm giá trị của nó
+    if (root->chapter > del_chapter) 
+    {
+        root->chapter--;
+    }
+
+    // Tiếp tục cập nhật cho các node con
+    CHANGE(root->left, del_chapter);
+    CHANGE(root->right, del_chapter);
 }
+
 
 // Hàm xóa nếu node cần xóa ko phải root
 void DEL1(NODE* root, int c)
 {
     NODE* p1;
+    int del_chapter;
     if(c == root->right->chapter)
     {
         p1 = root->right;
         if(!IS_EMPTY(root->right->right)) root->right = root->right->right;
-
+        del_chapter = p1->chapter;
         delete p1;
     }
-    CHANGE(root);
+    CHANGE(root, del_chapter);
 }   
 
 // Hàm xóa 1 node khỏi cây
@@ -147,8 +147,8 @@ void DEL(NODE* root, int c)
 void PREFIX(NODE* root)
 {
     if(IS_EMPTY(root)) return;
-    cout << "Chapter: " << root->chapter << endl;
-    cout << "Page: " << root->page << " Section: " << root->section << " Subsection: " << root->subsection;
+    cout << "Chapter: " << root->chapter << "Page: " << root->page << " Section: " << root->section << " Subsection: " << root->subsection;
+    cout << endl;
     PREFIX(root->left);
     PREFIX(root->right); 
 }
@@ -162,7 +162,7 @@ int main()
     int section;
     int subsection;
 
-    for(int i = 0; i < 2; i++)
+    for(int i = 0; i < 3; i++)
     {
         cout << " Chapter: ";
         cin >> chapter;
@@ -173,19 +173,18 @@ int main()
         cout << " subsection: ";
         cin >> subsection;
 
-        INSERT(root, chapter, page, section, subsection);
+        root = INSERT(root, chapter, page, section, subsection);
     }
 
-    if(root == NULL) cout << "0";
-    // cout << root->chapter;
-    // if(root->right == NULL) cout << "1";
+    PREFIX(root); cout << endl;
 
-    PREFIX(root);
+    NUM_OF_CHAP(root); cout << endl;
 
-    // NUM_OF_CHAP(root);
-    // cout << MAX_LEN(root);
-    // FIND(root, 3);
-    // DEL(root, 3);
+    int longest_chap;
+    longest_chap = MAX_LEN(root, longest_chap);
+    cout << longest_chap << endl;
+    FIND(root, 2); cout << endl;
+    DEL(root, 2);
 
 
     return 0;
